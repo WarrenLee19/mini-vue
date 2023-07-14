@@ -1,4 +1,4 @@
-import {reactive} from "../reactive";
+import {isReactive, reactive} from "../reactive";
 // 编写 reactive 的 happy path
 describe('reactive', () => {
     it('happy path', () => {
@@ -8,5 +8,7 @@ describe('reactive', () => {
         expect(observed).not.toBe(original)
         // 期望包装后某个属性的值和源对象一样
         expect(observed.foo).toBe(original.foo)
+        expect(isReactive(observed)).toBe(true)
+        expect(isReactive(original)).toBe(false)
     })
 })

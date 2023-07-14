@@ -1,18 +1,24 @@
-// 可以使用简单的 Proxy 来实现
-import {track, trigger} from "./effect";
+import { mutableHandlers, readonlyHandlers } from './baseHandlers'
+
+export const enum ReactiveFlags {
+    IS_REACTIVE="_v_isReactive",
+    IS_READONLY="_v_isReadonly",
+}
+
+function createActiveObject(raw, baseHandlers) {
+    return new Proxy(raw, baseHandlers)
+}
 
 export function reactive(raw) {
-    return new Proxy(raw, {
-        get(target, key, receiver) {
-            const res = Reflect.get(target, key, receiver)
+    return createActiveObject(raw, mutableHandlers)
+}
+export function isReactive(values) {
+    return !!values[ReactiveFlags.IS_REACTIVE]
+}
+export function isReadonly(values) {
+    return !!values[ReactiveFlags.IS_READONLY]
+}
 
-            track(target,key)
-            return res
-        },
-        set(target, key, value) {
-            const res = Reflect.set(target, key, value)
-            trigger(target,key)
-            return res
-        },
-    })
+export function readonly(raw) {
+    return createActiveObject(raw, readonlyHandlers)
 }
