@@ -18,3 +18,10 @@ it('should warn when update readonly prop value', () => {
     readonlyObj.foo = 2
     expect(console.warn).toHaveBeenCalled()
 })
+it('should readonly nested object', () => {
+    const nested = { foo: { innerFoo: 1 }, bar: [{ innerBar: 2 }] }
+    const wrapped = readonly(nested)
+    expect(isReadonly(wrapped.foo)).toBe(true)
+    expect(isReadonly(wrapped.bar)).toBe(true)
+    expect(isReadonly(wrapped.bar[0])).toBe(true)
+})

@@ -2,7 +2,7 @@ import {extend} from "../shared";
 // 需要一个全局变量来保存当前的 effect
 let activeEffect
 
-class ReactiveEffect{
+export class ReactiveEffect{
     private _fn:any
     // [stop] 反向记录自己对应的 dep 那个 set
     deps = []
@@ -56,10 +56,13 @@ export function track(target, key) {
     }
     // 将 effect 加入到 set 中
     // 如果该 activeEffect 还没有调用 stop 方法的时候，再去添加依赖和反向收集依赖
+    trackEffect(dep)
+}
+
+// 抽离函数
+export function trackEffect(dep) {
+    if (dep.has(activeEffect)) return
     if (activeEffect && activeEffect.active) {
-        // [stop]：反向追踪 activeEffect 的 dep
-        // 因为一个 activeEffect 可能会对应多个 dep，每个 dep 是一个 set
-        // 这里我们可以使用一个数组
         activeEffect.deps.push(dep)
         dep.add(activeEffect)
     }
@@ -68,10 +71,13 @@ export function track(target, key) {
 export function trigger(target,key){
     let depsMap = targetMap.get(target)
     let deps = depsMap.get(key)
+    triggerEffect(deps)
+}
+export function triggerEffect(deps) {
     for (const effect of deps) {
-        if(effect.options.scheduler){
+        if (effect.options.scheduler) {
             effect.options.scheduler()
-        }else {
+        } else {
             effect.run()
         }
     }
